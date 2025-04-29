@@ -66,6 +66,11 @@
       "types": "./dist/mcp/do-oauth-client-provider.d.ts",
       "require": "./dist/mcp/do-oauth-client-provider.js",
       "import": "./dist/mcp/do-oauth-client-provider.js"
+    },
+    "./observability": {
+      "types": "./dist/observability/impl.d.ts",
+      "require": "./dist/observability/impl.d.js",
+      "import": "./dist/observability/impl.js"
     }
   },
   "keywords": [],
@@ -93,6 +98,7 @@
     "react": "*"
   },
   "devDependencies": {
-    "react": "*"
+    "react": "*",
+    "observability-spa": "file:../observability-spa"
   }
 }
