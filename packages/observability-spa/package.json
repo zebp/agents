@@ -1,0 +1,31 @@
+{
+  "name": "observability-spa",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "keywords": [],
+  "author": "Cloudflare Inc.",
+  "license": "MIT",
+  "description": "The observability spa for the agents sdk",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "@types/js-string-escape": "^1.0.3",
+    "tailwindcss": "^4.1.4"
+  },
+  "dependencies": {
+    "agents": "^0.0.59",
+    "fetch-event-stream": "^0.1.5",
+    "js-string-escape": "^1.0.1"
+  }
+}
