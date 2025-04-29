@@ -6,6 +6,7 @@ import type {
 } from "ai";
 import { appendResponseMessages } from "ai";
 import type { OutgoingMessage, IncomingMessage } from "./ai-types";
+import { observabilityState } from "./observability/internal";
 
 const decoder = new TextDecoder();
 
@@ -87,6 +88,15 @@ export class AIChatAgent<Env = unknown, State = unknown> extends Agent<
         const abortSignal = this.#getAbortSignal(chatMessageId);
 
         return this.#tryCatch(async () => {
+          if (messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
+            observabilityState(this)?.msg({
+              type: "message",
+              log: true,
+              message: lastMessage,
+            });
+          }
+
           const response = await this.onChatMessage(
             async ({ response }) => {
               const finalMessages = appendResponseMessages({
@@ -198,6 +208,12 @@ export class AIChatAgent<Env = unknown, State = unknown> extends Agent<
       },${JSON.stringify(message)})`;
     }
     this.messages = messages;
+
+    observabilityState(this)?.msg({
+      type: "messages",
+      messages,
+    });
+
     this.#broadcastChatMessage(
       {
         type: "cf_agent_chat_messages",

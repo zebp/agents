@@ -13,6 +13,10 @@ import { nanoid } from "nanoid";
 
 import { AsyncLocalStorage } from "node:async_hooks";
 import { MCPClientManager } from "./mcp/client";
+import {
+  maybeRouteObservability,
+  observabilityState,
+} from "./observability/internal";
 
 export type { Connection, WSMessage, ConnectionContext } from "partyserver";
 
@@ -360,6 +364,15 @@ export class Agent<Env, State = unknown> extends Server<Env> {
               // biome-ignore lint/complexity/noBannedTypes: <explanation>
               const metadata = callableMetadata.get(methodFn as Function);
 
+              observabilityState(this)?.msg({
+                type: "rpc",
+                log: true,
+                id,
+                method,
+                args,
+                streaming: metadata?.streaming ?? false,
+              });
+
               // For streaming methods, pass a StreamingResponse object
               if (metadata?.streaming) {
                 const stream = new StreamingResponse(connection, id);
@@ -437,6 +450,11 @@ export class Agent<Env, State = unknown> extends Server<Env> {
       }),
       source !== "server" ? [source.id] : []
     );
+    observabilityState(this)?.msg({
+      type: "state-update",
+      log: true,
+      state,
+    });
     return this.#tryCatch(() => {
       const { connection, request } = agentContext.getStore() || {};
       return agentContext.run(
@@ -554,13 +572,21 @@ export class Agent<Env, State = unknown> extends Server<Env> {
 
       await this.#scheduleNextAlarm();
 
-      return {
+      const schedule = {
         id,
         callback: callback,
         payload: payload as T,
         time: timestamp,
         type: "scheduled",
-      };
+      } as const;
+
+      observabilityState(this)?.msg({
+        type: "schedule",
+        log: true,
+        schedule,
+      });
+
+      return schedule;
     }
     if (typeof when === "number") {
       const time = new Date(Date.now() + when * 1000);
@@ -575,14 +601,22 @@ export class Agent<Env, State = unknown> extends Server<Env> {
 
       await this.#scheduleNextAlarm();
 
-      return {
+      const schedule = {
         id,
         callback: callback,
         payload: payload as T,
         delayInSeconds: when,
         time: timestamp,
         type: "delayed",
-      };
+      } as const;
+
+      observabilityState(this)?.msg({
+        type: "schedule",
+        log: true,
+        schedule,
+      });
+
+      return schedule;
     }
     if (typeof when === "string") {
       const nextExecutionTime = getNextCronTime(when);
@@ -597,14 +631,22 @@ export class Agent<Env, State = unknown> extends Server<Env> {
 
       await this.#scheduleNextAlarm();
 
-      return {
+      const schedule = {
         id,
         callback: callback,
         payload: payload as T,
         cron: when,
         time: timestamp,
         type: "cron",
-      };
+      } as const;
+
+      observabilityState(this)?.msg({
+        type: "schedule",
+        log: true,
+        schedule,
+      });
+
+      return schedule;
     }
     throw new Error("Invalid schedule type");
   }
@@ -682,6 +724,12 @@ export class Agent<Env, State = unknown> extends Server<Env> {
   async cancelSchedule(id: string): Promise<boolean> {
     this.sql`DELETE FROM cf_agents_schedules WHERE id = ${id}`;
 
+    observabilityState(this)?.msg({
+      type: "schedule-cancel",
+      log: true,
+      scheduleId: id,
+    });
+
     await this.#scheduleNextAlarm();
     return true;
   }
@@ -720,6 +768,12 @@ export class Agent<Env, State = unknown> extends Server<Env> {
         console.error(`callback ${row.callback} not found`);
         continue;
       }
+
+      observabilityState(this)?.msg({
+        type: "schedule-ran",
+        log: true,
+        schedule: row,
+      });
       await agentContext.run(
         { agent: this, connection: undefined, request: undefined },
         async () => {
@@ -831,6 +885,11 @@ export async function routeAgentRequest<Env>(
     console.warn(
       "Received an OPTIONS request, but cors was not enabled. Pass `cors: true` or `cors: { ...custom cors headers }` to routeAgentRequest to enable CORS."
     );
+  }
+
+  const maybeObsResponse = await maybeRouteObservability(request);
+  if (maybeObsResponse) {
+    return maybeObsResponse;
   }
 
   let response = await routePartykitRequest(
