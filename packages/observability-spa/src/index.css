@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-color) transparent;
+  }
+}
+
+:root {
+    --scroll-color: #eae8e6;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --scroll-color: #2a251f;
+    }
+}
+
+@theme {
+    /* Base colors */
+    --orange-50: #fff8f1;
+    --orange-100: #ffe9d9;
+    --orange-200: #ffd0b5;
+    --orange-300: #ffb088;
+    --orange-400: #ff8a5c;
+    --orange-500: #ff6b2b;
+    --orange-600: #fd4d06;
+    --orange-700: #d03a00;
+    --orange-800: #a93105;
+    --orange-900: #882c0a;
+    
+    /* Light theme colors */
+    --color-bg-primary: #fdfaf7;
+    --color-bg-secondary: #f7f2ed;
+    --color-bg-tertiary: #f2ebe5;
+    --color-surface: #e9ddd4;
+
+    /* Border colors */
+    --color-border-primary: #eae8e6;
+    --color-border-secondary: #d6ccc2;
+    
+    /* Text colors */
+    --color-primary: #2a1f16;
+    --color-secondary: #4d3c2e;
+    --color-tertiary: #6d5d4e;
+    --color-disabled: #a08675;
+    
+    /* Accent colors */
+    --color-accent-primary: #ff6b2b;
+    --color-accent-secondary: #d03a00;
+    --color-accent-tertiary: #a93105;
+    
+   
+    
+    /* Input, form elements */
+    --color-input-bg: #ffffff;
+    --color-input-border: #d9c8b8;
+    --color-input-focus: #ff6b2b;
+
+    /* Extra dark theme colors with orange hue */
+    --color-dark-bg-primary: #080604;
+    --color-dark-bg-secondary: #0f0c09;
+    --color-dark-bg-tertiary: #15120e;
+    --color-dark-surface: #2a251f;
+    
+    /* Text colors */
+    --color-dark-primary: #f8f0e3;
+    --color-dark-secondary: #d9c8b8;
+    --color-dark-tertiary: #a08675;
+    --color-dark-disabled: #6d5d4e;
+    
+    /* Accent colors */
+    --color-dark-accent-primary: #ff6b2b;
+    --color-dark-accent-secondary: #d03a00;
+    --color-dark-accent-tertiary: #a93105;
+    
+    /* Border colors */
+    --color-dark-border-primary: #2a251f;
+    --color-dark-border-secondary: #3a332c;
+    
+    /* Input, form elements */
+    --color-dark-input-bg: #191511;
+    --color-dark-input-border: #3a332c;
+    --color-dark-input-focus: #ff6b2b;
+    
+    /* Status colors (with orange hue adjustments) */
+    --color-success: #3a8d6f;
+    --color-warning: #ff9a56;
+    --color-error: #e85c51;
+    --color-info: #458094;
+}
